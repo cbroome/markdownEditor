@@ -10,21 +10,21 @@ if (typeof define === 'function' && define.amd) {
     
     $.fn.markdownEditor = function ( action, options ) { 
         
-        return this.each( function() {    
-            var actions = {
-                init: $.proxy( $.fn.markdownEditor.init, this ),
-                getValue: $.proxy( $.fn.markdownEditor.getValue, this ),
-                setValue: $.proxy( $.fn.markdownEditor.setValue, this )
-            };
-            return actions[ action ]( options );
-        } );
+        var actions = {
+            init: $.proxy( $.fn.markdownEditor.init, this ),
+            getHTML: $.proxy( $.fn.markdownEditor.getHTML, this ),
+            getMarkdown: $.proxy( $.fn.markdownEditor.getMarkdown, this ), 
+            setValue: $.proxy( $.fn.markdownEditor.setValue, this )
+        };
+        
+        return actions[ action ]( options );
         
     };  
     
     
     $.fn.markdownEditor.init = function( options ) {
         var $this = $( this ),
-            markdownEditor = new  $.fn.markdownEditor.MarkdownEditor( $this );
+            markdownEditor = new $.fn.markdownEditor.MarkdownEditor( $this );
         markdownEditor.render();
 
         // Make the markdownEditor accessible in a roundabout way
@@ -32,12 +32,16 @@ if (typeof define === 'function' && define.amd) {
         return this;
     };
     
-    $.fn.markdownEditor.getValue = function() {
+    $.fn.markdownEditor.getHTML = function() {
         var $this = $( this );
-        return $this.data( 'markdownEditor' ).getValue();
+        return $this.data( 'markdownEditor' ).getHTML();
     };
     
-
+    $.fn.markdownEditor.getMarkdown = function() {
+        var $this = $( this );
+        return $this.data( 'markdownEditor' ).getMarkdown();
+    };
+    
     $.fn.markdownEditor.setValue = function( value ) {
         var $this = $( this );
         return $this.data( 'markdownEditor' ).setValue( value );
@@ -72,7 +76,36 @@ if (typeof define === 'function' && define.amd) {
              * Updates the preview div with the rendered content from the textarea
              */
             _updatePreview: function() {
-                this.$preview.html( this.$textarea.val() );            
+                
+                var rawValue = this.$textarea.val(),
+                    token = '!!!UNIQUE_TOKEN!!!', 
+                    regex = new RegExp( token ),
+                    $temporaryHTML = $( '<div />' ).append( rawValue ), 
+                    contents = $temporaryHTML.first().contents(),
+                    elements = [],
+                    element,
+                    parsedValue,
+                    regex,
+                    i;
+                
+                // only want to transform text nodes, jQuery::children would skip them                
+                contents.each( function() {
+                    // swap the node with a token, store the html
+                    if( this.nodeType === 1 ) {
+                        elements.push( $( this ).clone().wrap( '<p>' ).parent().html() ); 
+                        $( this ).replaceWith( token );
+                    }
+                } );
+                
+                parsedValue = markdown.toHTML( $temporaryHTML.html() );
+                
+                // replace those tokens with their proper nodes. 
+                while( elements.length ) {
+                    element = elements.shift(); 
+                    parsedValue = parsedValue.replace( regex, element ); 
+                }
+                
+                this.$preview.html( parsedValue );            
             },
             
             /**
@@ -113,6 +146,7 @@ if (typeof define === 'function' && define.amd) {
                     .append( this._createColumn( this.$preview ) ); 
                 
                 $( this.$textarea )
+                    .on( 'input', updatePreview )
                     .on( 'keyup', updatePreview )
                     .on( 'keydown', updatePreview ); 
                 
@@ -121,11 +155,18 @@ if (typeof define === 'function' && define.amd) {
             
             
             /**
-             * @returns {String}
+             * @returns {String}    returns the unconverted markdown
              */
-            getValue: function() {
-                console.log( 'here ',  this.$textarea.val() );
+            getMarkdown: function( ) {
                 return  this.$textarea.val();
+            },
+            
+            /**
+             * 
+             * @returns {String}    The parsed html.
+             */
+            getHTML: function() {
+                return this.$preview.html();
             },
             
             /**
