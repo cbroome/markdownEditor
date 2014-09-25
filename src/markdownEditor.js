@@ -121,6 +121,38 @@ if (typeof define === 'function' && define.amd) {
             },
             
             
+            /**
+             * Add some good key bindings...
+             * 
+             * @param   {Event} evt
+             */
+            _textareaBehavior: function( evt ) {
+                
+                // Tab Key
+                if( evt.keyCode === 9) { 
+                    // see: http://stackoverflow.com/a/6140696/684438
+                    // tab was pressed
+                    // get caret position/selection
+                    var start   = evt.target.selectionStart,
+                        end     = evt.target.selectionEnd,
+                        value   = this.$textarea.val();
+                    
+                    // set textarea value to: text before caret + tab + text after caret
+                    this.$textarea.val( 
+                        value.substring( 0, start )
+                        + "\t"
+                        + value.substring( end )
+                    );
+
+                    // put caret at right position again (add one for the tab)
+                    evt.target.selectionStart = evt.target.selectionEnd = start + 1;
+
+                    // prevent the focus lose
+                    evt.preventDefault();
+                }
+            },
+            
+            
             initialize: function() {
                 
             },
@@ -145,10 +177,13 @@ if (typeof define === 'function' && define.amd) {
                 this.$el.append( this._createColumn( this.$textarea ) )
                     .append( this._createColumn( this.$preview ) ); 
                 
-                $( this.$textarea )
+                this.$textarea
                     .on( 'input', updatePreview )
                     .on( 'keyup', updatePreview )
                     .on( 'keydown', updatePreview ); 
+                
+                this.$textarea
+                    .keydown( $.proxy( this._textareaBehavior, this ) ); 
                 
                 return this;
             },
