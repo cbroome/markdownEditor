@@ -1,0 +1,24 @@
+{
+  "name": "jQueryMarkdownEditor",
+  "version": "0.0.0",
+  "homepage": "https://github.com/cbroome/markdownEditor",
+  "authors": [
+    "Chris Broome <chris.a.broome@gmail.com>"
+  ],
+  "description": "A dual paned markdown editor as a jquery plugin",
+  "keywords": [
+    "markdown",
+    "jquery"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery": "~2.1.1"
+  }
+}
