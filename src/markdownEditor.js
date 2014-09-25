@@ -153,9 +153,7 @@ if (typeof define === 'function' && define.amd) {
             },
             
             
-            initialize: function() {
-                
-            },
+            initialize: function() { },
             
             
             /**
