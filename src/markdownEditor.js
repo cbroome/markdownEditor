@@ -24,7 +24,7 @@ if (typeof define === 'function' && define.amd) {
     
     $.fn.markdownEditor.init = function( options ) {
         var $this = $( this ),
-            markdownEditor = new $.fn.markdownEditor.MarkdownEditor( $this );
+            markdownEditor = new $.fn.markdownEditor.MarkdownEditor( $this, options );
         markdownEditor.render();
 
         // Make the markdownEditor accessible in a roundabout way
@@ -54,8 +54,9 @@ if (typeof define === 'function' && define.amd) {
      * 
      */
     
-     $.fn.markdownEditor.MarkdownEditor = function( $el ) {
+     $.fn.markdownEditor.MarkdownEditor = function( $el, options ) {
         this.$el = $el;
+        $.extend( this.options, options || {} );
         this.initialize(); 
     };
     
@@ -71,6 +72,22 @@ if (typeof define === 'function' && define.amd) {
              * @property    {jQuery}    $preview
              */
             $preview: undefined,
+            
+            /**
+             * @property    {Object}    options
+             */
+            options: {
+
+                /**
+                 * @property    {Object}    markdownAttrs   attributes to apply to the markdownEditor
+                 */
+                markdownAttrs: undefined,
+                
+                /**
+                 * @property    {Object}    previewAttrs    attributes to apply to the preview window
+                 */
+                previewAttrs: undefined
+            },
             
             /**
              * Updates the preview div with the rendered content from the textarea
@@ -175,6 +192,14 @@ if (typeof define === 'function' && define.amd) {
                 this.$el.append( this._createColumn( this.$textarea ) )
                     .append( this._createColumn( this.$preview ) ); 
                 
+                if( this.options.markdownAttrs ) {
+                    this.$textarea.attr( this.options.markdownAttrs );
+                }
+                
+                if( this.options.previewAttrs ) {
+                    this.$textarea.attr( this.options.previewAttrs );
+                }
+                
                 this.$textarea
                     .on( 'input', updatePreview )
                     .on( 'keyup', updatePreview )
@@ -182,6 +207,8 @@ if (typeof define === 'function' && define.amd) {
                 
                 this.$textarea
                     .keydown( $.proxy( this._textareaBehavior, this ) ); 
+                
+                this.$preview.height( this.$textarea.height() );
                 
                 return this;
             },

@@ -23,10 +23,11 @@
 
 .md-markdown-editor textarea {
     font-family: monospace;
+    font-weight: lighter;
     width: 100%;
     height: 100%; 
     padding: 10px;
-    background: rgb(92, 93, 96);
-    color: rgb(180, 214, 179);
-    font-size: 1.45em;
+    background: rgb(25, 25, 25);
+    color: rgb(94, 245, 89);
+    font-size: 1.25em;
 }

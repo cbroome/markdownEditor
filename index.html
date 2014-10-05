@@ -2,8 +2,10 @@
 <head>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <!-- <script src="lib/markdown.min.js"></script> -->
-    <!-- <script src="src/markdownEditor.js"></script> -->
+    <!--
+    <script src="lib/markdown.min.js"></script>
+    <script src="src/markdownEditor.js"></script>
+    -->
     <script src="./markdownEditor.min.js"></script>
     <link type="text/css" rel="stylesheet" href="src/markdownEditor.css" />
 </head>
@@ -17,7 +19,15 @@
 </body>
 <script type="text/javascript">
     
-    var md = $( '#put-markdown-here' ).markdownEditor( 'init'  );
+    var md = $( '#put-markdown-here' ).markdownEditor( 
+        'init', 
+        { 
+            markdownAttrs: { 
+                id: 'markdown-editor',
+                name: 'markdown-content'
+            } 
+        }
+    );
     // md.data( 'markdownEditor' ).test();
     // md.markdownEditor( 'setValue', 'update <div>with value</div>' );
     
