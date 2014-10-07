@@ -25,6 +25,8 @@ if (typeof define === 'function' && define.amd) {
     $.fn.markdownEditor.init = function( options ) {
         var $this = $( this ),
             markdownEditor = new $.fn.markdownEditor.MarkdownEditor( $this, options );
+        
+        
         markdownEditor.render();
 
         // Make the markdownEditor accessible in a roundabout way
@@ -77,6 +79,11 @@ if (typeof define === 'function' && define.amd) {
              * @property    {Object}    options
              */
             options: {
+                
+                /**
+                 * @property    {String} initString     initialValue of the component
+                 */
+                initString: undefined,
 
                 /**
                  * @property    {Object}    markdownAttrs   attributes to apply to the markdownEditor
@@ -170,7 +177,9 @@ if (typeof define === 'function' && define.amd) {
             },
             
             
-            initialize: function() { },
+            initialize: function() {
+                this.options.initString = this.options.initString || decodeURI( this.$el.html() );
+            },
             
             
             /**
@@ -184,7 +193,7 @@ if (typeof define === 'function' && define.amd) {
                 var updatePreview = $.proxy( this._updatePreview, this ); 
                 
                 this.$el.addClass( 'md-markdown-editor' );
-                this.$textarea = $( '<textarea />' );
+                this.$textarea = $( '<textarea />' ).val( this.options.initString );
                 this.$preview = $( '<div class="md-preview" />' );
                 
                 this.$el.empty();
