@@ -34,11 +34,17 @@ if (typeof define === 'function' && define.amd) {
         return this;
     };
     
+    /**
+     * @returns {String}    The parsed html.
+     */
     $.fn.markdownEditor.getHTML = function() {
         var $this = $( this );
         return $this.data( 'markdownEditor' ).getHTML();
     };
     
+    /**
+     * @returns {String}    returns the unconverted markdown
+     */
     $.fn.markdownEditor.getMarkdown = function() {
         var $this = $( this );
         return $this.data( 'markdownEditor' ).getMarkdown();
@@ -190,7 +196,7 @@ if (typeof define === 'function' && define.amd) {
              */
             render: function() {
                 
-                var updatePreview = $.proxy( this._updatePreview, this ); 
+                var updatePreview; 
                 
                 this.$el.addClass( 'md-markdown-editor' );
                 this.$textarea = $( '<textarea />' ).val( this.options.initString );
@@ -209,6 +215,7 @@ if (typeof define === 'function' && define.amd) {
                     this.$textarea.attr( this.options.previewAttrs );
                 }
                 
+                updatePreview = $.proxy( this._updatePreview, this );                
                 this.$textarea
                     .on( 'input', updatePreview )
                     .on( 'keyup', updatePreview )
@@ -218,6 +225,8 @@ if (typeof define === 'function' && define.amd) {
                     .keydown( $.proxy( this._textareaBehavior, this ) ); 
                 
                 this.$preview.height( this.$textarea.height() );
+                
+                updatePreview();
                 
                 return this;
             },
