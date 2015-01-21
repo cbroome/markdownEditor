@@ -76,6 +76,11 @@ if (typeof define === 'function' && define.amd) {
             $preview: undefined,
             
             /**
+             * @property    {jQuery}    $buttonBar
+             */
+            $buttonBar: undefined,
+            
+            /**
              * @property    {Object}    options
              */
             options: {
@@ -94,6 +99,26 @@ if (typeof define === 'function' && define.amd) {
                  * @property    {Object}    previewAttrs    attributes to apply to the preview window
                  */
                 previewAttrs: undefined
+            },
+            
+            
+            _buttonBold: function() {
+                alert( 'Button Bold!' );  
+            },
+            
+            _buttonItalic: function() {
+                alert( 'Button Italic!' );
+            },
+            
+            /**
+             * 
+             * @returns {Array} 
+             */
+            _defaultButtons: function() {
+                return [
+                    { label: 'B', name: 'bold', functionality: this._buttonBold },
+                    { label: 'I', name: 'italic', functionality: this._buttonItalic }
+                ];
             },
             
             /**
@@ -177,6 +202,26 @@ if (typeof define === 'function' && define.amd) {
             },
             
             
+            _buildButtonBar: function() {
+                var buttons = this._defaultButtons(),
+                    length = buttons.length,
+                    $button,
+                    i;
+                
+                for( i = 0; i < length; i++ ) {
+                    console.log( buttons[i] );
+                    $button = $( '<button type="button">' + buttons[i].label + '</button>' );
+                    
+                    if( buttons[ i ].functionality ) {
+                        $button.click( buttons[ i ].functionality );
+                    }
+                    this.$buttonBar.append( $button );
+                }
+                
+                
+            },
+            
+            
             initialize: function() {
                 this.options.initString = this.options.initString || decodeURI( this.$el.html() );
             },
@@ -190,15 +235,23 @@ if (typeof define === 'function' && define.amd) {
              */
             render: function() {
                 
-                var updatePreview = $.proxy( this._updatePreview, this ); 
+                var updatePreview = $.proxy( this._updatePreview, this ),
+                    $leftColumn; 
                 
                 this.$el.addClass( 'md-markdown-editor' );
                 this.$textarea = $( '<textarea />' ).val( this.options.initString );
+                this.$buttonBar = $( '<div class="md-button-bar" />' );
                 this.$preview = $( '<div class="md-preview" />' );
                 
                 this.$el.empty();
+                this._buildButtonBar();
                 
-                this.$el.append( this._createColumn( this.$textarea ) )
+                $leftColumn = this._createColumn();
+                
+                $leftColumn.append( this.$buttonBar );
+                $leftColumn.append( this.$textarea );
+                
+                this.$el.append( $leftColumn )
                     .append( this._createColumn( this.$preview ) ); 
                 
                 if( this.options.markdownAttrs ) {
@@ -209,16 +262,14 @@ if (typeof define === 'function' && define.amd) {
                     this.$textarea.attr( this.options.previewAttrs );
                 }
                 
+                
                 this.$textarea
                     .on( 'input', updatePreview )
                     .on( 'keyup', updatePreview )
                     .on( 'keydown', updatePreview ); 
                 
                 this.$textarea
-                    .keydown( $.proxy( this._textareaBehavior, this ) ); 
-                
-                this.$preview.height( this.$textarea.height() );
-                
+                    .keydown( $.proxy( this._textareaBehavior, this ) );                 
                 return this;
             },
             
