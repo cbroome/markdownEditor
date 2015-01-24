@@ -102,12 +102,44 @@ if (typeof define === 'function' && define.amd) {
             },
             
             
-            _buttonBold: function() {
-                alert( 'Button Bold!' );  
+            _buttonBold: function( text ) {
+                text = '**' + text + '**';
+                return text;
             },
             
-            _buttonItalic: function() {
-                alert( 'Button Italic!' );
+            _buttonItalic: function( text ) {
+                text = '*' + text + '*';
+                return text;
+            },
+            
+            _buttonUnderline: function( text ) {
+                text = '_' + text + '_';
+                return text;
+            },
+            
+            
+            /**
+             * Generic button click, this will call all of the custom
+             * functionality
+             * 
+             * @param   {Function}  functionality
+             */
+            _buttonClick: function( functionality ) {
+                var start, end, value, substring, newString;
+                if( functionality ) {
+                    value = this.$textarea.val();
+                    start = this.$textarea[0].selectionStart;
+                    end = this.$textarea[0].selectionEnd;
+                    substring = functionality( value.substring( start, end ) );
+                    
+                    if( substring ) {
+                        newString = value.substring( 0, start )
+                            + substring
+                            + value.substring( end, value.length );
+                        this.$textarea.val( newString );
+                        this._updatePreview();
+                    }
+                }  
             },
             
             /**
@@ -117,7 +149,8 @@ if (typeof define === 'function' && define.amd) {
             _defaultButtons: function() {
                 return [
                     { label: 'B', name: 'bold', functionality: this._buttonBold },
-                    { label: 'I', name: 'italic', functionality: this._buttonItalic }
+                    { label: 'I', name: 'italic', functionality: this._buttonItalic },
+                    { label: 'U', name: 'underline', functionality: this._buttonUnderline }
                 ];
             },
             
@@ -205,20 +238,18 @@ if (typeof define === 'function' && define.amd) {
             _buildButtonBar: function() {
                 var buttons = this._defaultButtons(),
                     length = buttons.length,
+                    functionality,
                     $button,
                     i;
                 
                 for( i = 0; i < length; i++ ) {
-                    console.log( buttons[i] );
-                    $button = $( '<button type="button">' + buttons[i].label + '</button>' );
-                    
-                    if( buttons[ i ].functionality ) {
-                        $button.click( buttons[ i ].functionality );
+                    $button = $( '<button type="button">' + buttons[i].label + '</button>' ); 
+                    functionality = buttons[ i ].functionality;
+                    if( functionality ) {
+                        $button.click( $.proxy( this._buttonClick, this, functionality ) );
                     }
                     this.$buttonBar.append( $button );
                 }
-                
-                
             },
             
             
