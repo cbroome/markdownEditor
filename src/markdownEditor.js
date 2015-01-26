@@ -137,7 +137,7 @@ if (typeof define === 'function' && define.amd) {
              * @param   {Function}  functionality
              */
             _buttonClick: function( functionality ) {
-                var start, end, value, substring, newString;
+                var start, end, value, substring, newString, cursorPosition;
                 if( functionality ) {
                     value = this.$textarea.val();
                     start = this.$textarea[0].selectionStart;
@@ -149,6 +149,11 @@ if (typeof define === 'function' && define.amd) {
                             + substring
                             + value.substring( end, value.length );
                         this.$textarea.val( newString );
+                        cursorPosition = start + substring.length;
+                        this.$textarea.focus();
+                        this.$textarea.each( function( index, textarea ) {
+                            textarea.setSelectionRange( cursorPosition, cursorPosition ); 
+                        } );
                         this._updatePreview();
                     }
                 }  
@@ -357,7 +362,6 @@ if (typeof define === 'function' && define.amd) {
              * @returns {MarkdownEditor}
              */
             addButton: function( definition ) {
-                console.log( 'adding button', definition );
                 this._buildButton( definition );
                 return this;
             }
