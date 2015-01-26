@@ -14,7 +14,8 @@ if (typeof define === 'function' && define.amd) {
             init: $.proxy( $.fn.markdownEditor.init, this ),
             getHTML: $.proxy( $.fn.markdownEditor.getHTML, this ),
             getMarkdown: $.proxy( $.fn.markdownEditor.getMarkdown, this ), 
-            setValue: $.proxy( $.fn.markdownEditor.setValue, this )
+            setValue: $.proxy( $.fn.markdownEditor.setValue, this ),
+            addButton: $.proxy( $.fn.markdownEditor.addButton, this )
         };
         
         return actions[ action ]( options );
@@ -47,6 +48,11 @@ if (typeof define === 'function' && define.amd) {
     $.fn.markdownEditor.setValue = function( value ) {
         var $this = $( this );
         return $this.data( 'markdownEditor' ).setValue( value );
+    };
+    
+    $.fn.markdownEditor.addButton = function( definition ) {
+        var $this = $( this );
+        return $this.data( 'markdownEditor' ).addButton( definition ); 
     };
     
     
@@ -234,21 +240,28 @@ if (typeof define === 'function' && define.amd) {
                 }
             },
             
+            /**
+             * 
+             * @param   {*}     button
+             */
+            _buildButton: function( button ) {
+                var $button = $( '<button type="button">' + button.label + '</button>' ); 
+                functionality = button.functionality;
+                if( functionality ) {
+                    $button.click( $.proxy( this._buttonClick, this, functionality ) );
+                }
+                this.$buttonBar.append( $button );
+            },
+            
             
             _buildButtonBar: function() {
                 var buttons = this._defaultButtons(),
                     length = buttons.length,
                     functionality,
-                    $button,
                     i;
                 
                 for( i = 0; i < length; i++ ) {
-                    $button = $( '<button type="button">' + buttons[i].label + '</button>' ); 
-                    functionality = buttons[ i ].functionality;
-                    if( functionality ) {
-                        $button.click( $.proxy( this._buttonClick, this, functionality ) );
-                    }
-                    this.$buttonBar.append( $button );
+                    this._buildButton( buttons[ i ] );
                 }
             },
             
@@ -300,7 +313,8 @@ if (typeof define === 'function' && define.amd) {
                     .on( 'keydown', updatePreview ); 
                 
                 this.$textarea
-                    .keydown( $.proxy( this._textareaBehavior, this ) );                 
+                    .keydown( $.proxy( this._textareaBehavior, this ) ); 
+                this._updatePreview();
                 return this;
             },
             
@@ -322,12 +336,25 @@ if (typeof define === 'function' && define.amd) {
             
             /**
              * @chainable
+             * @param   {String}    value
              * @returns {MarkdownEditor}
              */
             setValue: function( value ) {
                 this.$textarea.val( value ); 
                 this._updatePreview();
                 return this; 
+            },
+            
+            /**
+             * 
+             * @chainable
+             * @param   {*}     definition
+             * @returns {MarkdownEditor}
+             */
+            addButton: function( definition ) {
+                console.log( 'adding button', definition );
+                this._buildButton( definition );
+                return this;
             }
             
         } 
