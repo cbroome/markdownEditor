@@ -35,11 +35,17 @@ if (typeof define === 'function' && define.amd) {
         return this;
     };
     
+    /**
+     * @returns {String}    The parsed html.
+     */
     $.fn.markdownEditor.getHTML = function() {
         var $this = $( this );
         return $this.data( 'markdownEditor' ).getHTML();
     };
     
+    /**
+     * @returns {String}    returns the unconverted markdown
+     */
     $.fn.markdownEditor.getMarkdown = function() {
         var $this = $( this );
         return $this.data( 'markdownEditor' ).getMarkdown();
@@ -305,7 +311,6 @@ if (typeof define === 'function' && define.amd) {
                 if( this.options.previewAttrs ) {
                     this.$textarea.attr( this.options.previewAttrs );
                 }
-                
                 
                 this.$textarea
                     .on( 'input', updatePreview )
