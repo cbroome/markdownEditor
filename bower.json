@@ -5,6 +5,7 @@
   "authors": [
     "Chris Broome <chris.a.broome@gmail.com>"
   ],
+  "main": "Dual pane markdown editor",
   "description": "A dual paned markdown editor as a jquery plugin",
   "keywords": [
     "markdown",
