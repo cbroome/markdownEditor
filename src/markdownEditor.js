@@ -15,7 +15,9 @@ if (typeof define === 'function' && define.amd) {
             getHTML: $.proxy( $.fn.markdownEditor.getHTML, this ),
             getMarkdown: $.proxy( $.fn.markdownEditor.getMarkdown, this ), 
             setValue: $.proxy( $.fn.markdownEditor.setValue, this ),
-            addButton: $.proxy( $.fn.markdownEditor.addButton, this )
+            addButton: $.proxy( $.fn.markdownEditor.addButton, this ),
+            addComponent: $.proxy( $.fn.markdownEditor.addComponent, this ),
+            getSelection: $.proxy( $.fn.markdownEditor.getSelection, this )
         };
         
         return actions[ action ]( options );
@@ -26,8 +28,6 @@ if (typeof define === 'function' && define.amd) {
     $.fn.markdownEditor.init = function( options ) {
         var $this = $( this ),
             markdownEditor = new $.fn.markdownEditor.MarkdownEditor( $this, options );
-        
-        
         markdownEditor.render();
 
         // Make the markdownEditor accessible in a roundabout way
@@ -61,6 +61,18 @@ if (typeof define === 'function' && define.amd) {
         return $this.data( 'markdownEditor' ).addButton( definition ); 
     };
     
+    $.fn.markdownEditor.addComponent = function( $component ) {
+        var $this = $( this );
+        return $this.data( 'markdownEditor' ).addComponent( $component );
+    };
+    
+    /**
+     * @returns {Object}
+     */
+    $.fn.markdownEditor.getSelection = function( ) {
+        var $this = $( this );
+        return $this.data( 'markdownEditor' ).getSelection( );
+    };
     
     /*
      * 
@@ -137,12 +149,14 @@ if (typeof define === 'function' && define.amd) {
              * @param   {Function}  functionality
              */
             _buttonClick: function( functionality ) {
-                var start, end, value, substring, newString, cursorPosition;
+                var start, end, value, substring, newString, cursorPosition, selection;
                 if( functionality ) {
+                
                     value = this.$textarea.val();
-                    start = this.$textarea[0].selectionStart;
-                    end = this.$textarea[0].selectionEnd;
-                    substring = functionality( value.substring( start, end ) );
+                    selection = this.getSelection();
+                    start = selection.start;
+                    end = selection.end;
+                    substring = functionality( selection.selection );
                     
                     if( substring ) {
                         newString = value.substring( 0, start )
@@ -364,6 +378,32 @@ if (typeof define === 'function' && define.amd) {
             addButton: function( definition ) {
                 this._buildButton( definition );
                 return this;
+            },
+            
+            /**
+             * Add a component to the button bar
+             * 
+             */
+            addComponent: function( $component ) {
+                this.$buttonBar.append( $component );
+            },
+            
+            /**
+             * Get the current selection and cursor positions.
+             * 
+             */
+            getSelection: function() {
+                var value, start, end, substring;
+                value = this.$textarea.val();
+                start = this.$textarea[0].selectionStart;
+                end = this.$textarea[0].selectionEnd;
+                substring = value.substring( start, end );                
+                
+                return {
+                    start: start,
+                    end: end,
+                    selection: substring
+                };
             }
             
         } 

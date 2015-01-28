@@ -17,6 +17,8 @@ put initialization content here
         
 good idea to encode %3Ctags%3E
     </div>
+    
+    
     <button type="button">Get Value</button>
 </body>
 <script type="text/javascript">
@@ -32,6 +34,7 @@ good idea to encode %3Ctags%3E
     );
     
     md.markdownEditor( 'addButton', { label: 'test' } );
+    md.markdownEditor( 'addComponent', $( '<span>component</span>' ) );
 
 </script>
 </html>
