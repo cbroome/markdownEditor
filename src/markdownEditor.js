@@ -17,7 +17,8 @@ if (typeof define === 'function' && define.amd) {
             setValue: $.proxy( $.fn.markdownEditor.setValue, this ),
             addButton: $.proxy( $.fn.markdownEditor.addButton, this ),
             addComponent: $.proxy( $.fn.markdownEditor.addComponent, this ),
-            getSelection: $.proxy( $.fn.markdownEditor.getSelection, this )
+            getSelection: $.proxy( $.fn.markdownEditor.getSelection, this ),
+            insertValueAtCursor: $.proxy( $.fn.markdownEditor.insertValueAtCursor, this )
         };
         
         return actions[ action ]( options );
@@ -53,7 +54,8 @@ if (typeof define === 'function' && define.amd) {
     
     $.fn.markdownEditor.setValue = function( value ) {
         var $this = $( this );
-        return $this.data( 'markdownEditor' ).setValue( value );
+        $this.data( 'markdownEditor' ).setValue( value );
+        return this;
     };
     
     $.fn.markdownEditor.addButton = function( definition ) {
@@ -73,6 +75,17 @@ if (typeof define === 'function' && define.amd) {
         var $this = $( this );
         return $this.data( 'markdownEditor' ).getSelection( );
     };
+    
+    /**
+     * 
+     * @chainable
+     * @returns {markdownEditor}
+     */
+    $.fn.markdownEditor.insertValueAtCursor = function( value ) {
+        var $this = $( this );
+        $this.data( 'markdownEditor' ).insertValueAtCursor( value );
+        return $this;
+    }
     
     /*
      * 
@@ -149,6 +162,7 @@ if (typeof define === 'function' && define.amd) {
              * @param   {Function}  functionality
              */
             _buttonClick: function( functionality ) {
+                /*
                 var start, end, value, substring, newString, cursorPosition, selection;
                 if( functionality ) {
                 
@@ -170,7 +184,13 @@ if (typeof define === 'function' && define.amd) {
                         } );
                         this._updatePreview();
                     }
-                }  
+                } 
+                */
+                var selection = this.getSelection(), newValue;
+                if( functionality ) {
+                    newValue = selection.selection;
+                    this.insertValueAtCursor( newValue );
+                }
             },
             
             /**
@@ -404,6 +424,42 @@ if (typeof define === 'function' && define.amd) {
                     end: end,
                     selection: substring
                 };
+            },
+            
+            
+            /**
+             * This will insert a value at the current cursor position or 
+             * replace a section, regardless of what the value is.
+             * 
+             * @param   {String}    value
+             */
+            insertValueAtCursor: function( value )  {
+                var start, 
+                    end, 
+                    currentValue, 
+                    substring, 
+                    newString, 
+                    cursorPosition, 
+                    selection;
+                
+                if( value ) {
+                
+                    currentValue = this.$textarea.val();
+                    selection = this.getSelection();
+                    start = selection.start;
+                    end = selection.end;
+                    newString = currentValue.substring( 0, start )
+                        + value
+                        + currentValue.substring( end, currentValue.length );
+                    
+                    this.$textarea.val( newString );
+                    cursorPosition = start + substring.length;
+                    this.$textarea.focus();
+                    this.$textarea.each( function( index, textarea ) {
+                        textarea.setSelectionRange( cursorPosition, cursorPosition ); 
+                    } );
+                    this._updatePreview();
+                }  
             }
             
         } 
