@@ -1,13 +1,6 @@
 describe( 'MarkdownEditor', function() {
 
     var $editor;
-    beforeEach( function() {
-        $editor = $( '<div />' ).markdownEditor( 'init' );
-    } );
-    
-    afterEach( function() {
-        $editor = undefined;
-    } );
     
     describe( 'when initializing', function() {
 
@@ -16,18 +9,24 @@ describe( 'MarkdownEditor', function() {
             initVal = 'test setup value';
         } );
         
+        afterEach( function() {
+            $editor = undefined;
+        } );
+        
+        it( 'should modify any markdown in the init string', function() {
+            var val = 'Testing *this* too';
+            $editor = $( '<div>' + val + '</div>' ).markdownEditor( 'init' );
+            expect( $editor.markdownEditor( 'getMarkdown' ) ).toBe( val );
+            expect( $editor.markdownEditor( 'getHTML' ) ).not.toBe( initVal );
+        } );
+        
         it( 'should initialize with the current content of the parent node', function() {
             $editor = $( '<div>' + initVal + '</div>' ).markdownEditor( 'init' );
             expect( $editor.markdownEditor( 'getMarkdown' ) ).toBe( initVal );
         } );
         
         
-        it( 'should modify any markdown in the init string', function() {
-            var initVal = 'Testing *this*';
-            $editor = $( '<div>' + initVal + '</div>' ).markdownEditor( 'init' );
-            expect( $editor.markdownEditor( 'getMarkdown' ) ).toBe( initVal );
-            expect( $editor.markdownEditor( 'getHTML' ) ).not.toBe( initVal );
-        } );
+
         
     } );
     
@@ -36,6 +35,7 @@ describe( 'MarkdownEditor', function() {
 
         var value;
         beforeEach( function() {
+             $editor = $( '<div />' ).markdownEditor( 'init' );
             value = 'test value';
         } );
         

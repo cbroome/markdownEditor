@@ -8,10 +8,18 @@ if (typeof define === 'function' && define.amd) {
 }
 }(function ($) {    
     
+    /**
+     * @static  
+     * @private
+     * @var     {Integer}   markdownCounter
+     */
+    var markdownCounter = 0;
+    
     $.fn.markdownEditor = function ( action, options ) { 
         
         var actions = {
             init: $.proxy( $.fn.markdownEditor.init, this ),
+            destroy: $.proxy( $.fn.markdownEditor.destroy, this ),
             getHTML: $.proxy( $.fn.markdownEditor.getHTML, this ),
             getMarkdown: $.proxy( $.fn.markdownEditor.getMarkdown, this ), 
             setValue: $.proxy( $.fn.markdownEditor.setValue, this ),
@@ -25,9 +33,13 @@ if (typeof define === 'function' && define.amd) {
         
     };  
     
-    
+    /**
+     * 
+     * @param   {*} options
+     * @reutrns {MarkdownEditor}
+     */
     $.fn.markdownEditor.init = function( options ) {
-        var $this = $( this ),
+        var $this = this,
             markdownEditor = new $.fn.markdownEditor.MarkdownEditor( $this, options );
         markdownEditor.render();
 
@@ -36,11 +48,19 @@ if (typeof define === 'function' && define.amd) {
         return this;
     };
     
+    
+    $.fn.markdownEditor.destroy = function() {
+        var $this = this;
+        $this.data( 'markdownEditor' ).destroy();
+        $this.removeData( 'markdownEditor' );
+    };
+    
+    
     /**
      * @returns {String}    The parsed html.
      */
     $.fn.markdownEditor.getHTML = function() {
-        var $this = $( this );
+        var $this = this;
         return $this.data( 'markdownEditor' ).getHTML();
     };
     
@@ -48,23 +68,24 @@ if (typeof define === 'function' && define.amd) {
      * @returns {String}    returns the unconverted markdown
      */
     $.fn.markdownEditor.getMarkdown = function() {
-        var $this = $( this );
+        var $this = this;
         return $this.data( 'markdownEditor' ).getMarkdown();
     };
     
     $.fn.markdownEditor.setValue = function( value ) {
-        var $this = $( this );
+        var $this = this;
+        console.log( $this.data( 'markdownEditor' ).id );
         $this.data( 'markdownEditor' ).setValue( value );
         return this;
     };
     
     $.fn.markdownEditor.addButton = function( definition ) {
-        var $this = $( this );
+        var $this = this;
         return $this.data( 'markdownEditor' ).addButton( definition ); 
     };
     
     $.fn.markdownEditor.addComponent = function( $component ) {
-        var $this = $( this );
+        var $this = this;
         return $this.data( 'markdownEditor' ).addComponent( $component );
     };
     
@@ -72,9 +93,10 @@ if (typeof define === 'function' && define.amd) {
      * @returns {Object}
      */
     $.fn.markdownEditor.getSelection = function( ) {
-        var $this = $( this );
+        var $this = this;
         return $this.data( 'markdownEditor' ).getSelection( );
     };
+    
     
     /**
      * 
@@ -82,7 +104,7 @@ if (typeof define === 'function' && define.amd) {
      * @returns {markdownEditor}
      */
     $.fn.markdownEditor.insertValueAtCursor = function( value ) {
-        var $this = $( this );
+        var $this = this;
         $this.data( 'markdownEditor' ).insertValueAtCursor( value );
         return $this;
     }
@@ -94,14 +116,19 @@ if (typeof define === 'function' && define.amd) {
      */
     
      $.fn.markdownEditor.MarkdownEditor = function( $el, options ) {
-        this.$el = $el;
-        $.extend( this.options, options || {} );
-        this.initialize(); 
+        this.setupEl( $el );
+        this.setupOptions( options );
+        this.initialize( ); 
     };
     
     $.extend( 
          $.fn.markdownEditor.MarkdownEditor.prototype, 
         {
+            /**
+             * @property    {String}    id
+             */
+            id: undefined,
+            
             /**
              * @property    {jQuery}    $textarea
              */
@@ -118,25 +145,14 @@ if (typeof define === 'function' && define.amd) {
             $buttonBar: undefined,
             
             /**
+             * @property    {jQuery}    $el
+             */
+            $el: undefined,
+            
+            /**
              * @property    {Object}    options
              */
-            options: {
-                
-                /**
-                 * @property    {String} initString     initialValue of the component
-                 */
-                initString: undefined,
-
-                /**
-                 * @property    {Object}    markdownAttrs   attributes to apply to the markdownEditor
-                 */
-                markdownAttrs: undefined,
-                
-                /**
-                 * @property    {Object}    previewAttrs    attributes to apply to the preview window
-                 */
-                previewAttrs: undefined
-            },
+            options: undefined,
             
             
             _buttonBold: function( text ) {
@@ -162,30 +178,6 @@ if (typeof define === 'function' && define.amd) {
              * @param   {Function}  functionality
              */
             _buttonClick: function( functionality ) {
-                /*
-                var start, end, value, substring, newString, cursorPosition, selection;
-                if( functionality ) {
-                
-                    value = this.$textarea.val();
-                    selection = this.getSelection();
-                    start = selection.start;
-                    end = selection.end;
-                    substring = functionality( selection.selection );
-                    
-                    if( substring ) {
-                        newString = value.substring( 0, start )
-                            + substring
-                            + value.substring( end, value.length );
-                        this.$textarea.val( newString );
-                        cursorPosition = start + substring.length;
-                        this.$textarea.focus();
-                        this.$textarea.each( function( index, textarea ) {
-                            textarea.setSelectionRange( cursorPosition, cursorPosition ); 
-                        } );
-                        this._updatePreview();
-                    }
-                } 
-                */
                 var selection = this.getSelection(), newValue;
                 if( functionality ) {
                     newValue = selection.selection;
@@ -311,7 +303,48 @@ if (typeof define === 'function' && define.amd) {
             },
             
             
+            /**
+             * 
+             * Public methods
+             * 
+             */
+            
+            
+            /**
+             * @param   {*}     options
+             */
+            setupOptions: function( options ) {
+            
+                this.options = {
+                    /**
+                     * @property    {String} initString     initialValue of the component
+                     */
+                    initString: undefined,
+
+                    /**
+                     * @property    {Object}    markdownAttrs   attributes to apply to the markdownEditor
+                     */
+                    markdownAttrs: undefined,
+
+                    /**
+                     * @property    {Object}    previewAttrs    attributes to apply to the preview window
+                     */
+                    previewAttrs: undefined
+                };
+                
+                $.extend( this.options, options || {} );
+            },
+            
+            /**
+             * @param {jQuery}  $el
+             */
+            setupEl: function( $el ) {
+                this.$el = $el;   
+            },
+            
+            
             initialize: function() {
+                this.id = 'md' + ( markdownCounter++ );
                 this.options.initString = this.options.initString || decodeURI( this.$el.html() );
             },
             
@@ -362,6 +395,19 @@ if (typeof define === 'function' && define.amd) {
                 return this;
             },
             
+            /**
+             * Destroy the element
+             */
+            destroy: function() {
+                this.$preview.remove();
+                this.$preview = undefined;
+                
+                this.$textarea.remove();
+                this.$textarea = undefined;
+                
+                this.$el.remove();
+                this.$el = undefined;
+            },
             
             /**
              * @returns {String}    returns the unconverted markdown
