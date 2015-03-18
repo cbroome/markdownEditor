@@ -1,6 +1,9 @@
 describe( 'MarkdownEditor', function() {
 
     var $editor;
+    afterEach( function() {
+        $editor = undefined;
+    } );
     
     describe( 'when initializing', function() {
 
@@ -24,10 +27,6 @@ describe( 'MarkdownEditor', function() {
             $editor = $( '<div>' + initVal + '</div>' ).markdownEditor( 'init' );
             expect( $editor.markdownEditor( 'getMarkdown' ) ).toBe( initVal );
         } );
-        
-        
-
-        
     } );
     
     
@@ -47,6 +46,67 @@ describe( 'MarkdownEditor', function() {
             $editor.markdownEditor( 'setValue', value );
             expect( $editor.markdownEditor( 'getMarkdown' ) ).toBe( value );
         } );
+        
+    } );
+    
+    
+    describe( 'when calling insertValueAtCursor', function() {
+
+        var $editor; 
+        beforeEach( function() {
+            $editor = $( '<div />' ).markdownEditor( 'init' );
+            $( 'body' ).append( $editor );
+            $editor.markdownEditor( 'setValue', 'test test test test' );
+        } );
+        
+        afterEach( function() {
+            $editor.remove();
+        } );
+        
+        
+        it( 'should return itself', function() {
+            expect( $editor.markdownEditor( 'insertValueAtCursor', '' ) ).toBe( $editor );
+        } );
+        
+        
+        it( 'should insert a string', function() {
+            var testString = 'unique test ' ;
+            $editor.markdownEditor( 'insertValueAtCursor', testString ); 
+            expect( $editor.markdownEditor( 'getMarkdown' ) ).toContain( testString );
+        } );
+        
+        
+        it( 'should update the preview', function() {
+            var testString = 'unique test ', 
+                originalHTML = $editor.markdownEditor( 'getHTML' );
+            $editor.markdownEditor( 'insertValueAtCursor', testString ); 
+            expect( $editor.markdownEditor( 'getHTML' ) ).not.toBe( originalHTML );
+
+        } );
+        
+    } );
+    
+    describe( 'when calling addButton', function() {
+
+        var button;
+        beforeEach( function() {
+            $editor = $( '<div />' ).markdownEditor( 'init' );
+            $( 'body' ).append( $editor );
+            button = { 
+                label: 'test-label', 
+                name: 'test-name'
+            };
+        } );
+        
+        afterEach( function() {
+            $editor.remove();
+        } );
+        
+        
+        it( 'should return itself', function() {
+            expect( $editor.markdownEditor( 'addButton', button ) ).toBe( $editor );
+        } );
+        
         
     } );
     

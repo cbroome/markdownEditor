@@ -74,14 +74,14 @@ if (typeof define === 'function' && define.amd) {
     
     $.fn.markdownEditor.setValue = function( value ) {
         var $this = this;
-        console.log( $this.data( 'markdownEditor' ).id );
         $this.data( 'markdownEditor' ).setValue( value );
         return this;
     };
     
     $.fn.markdownEditor.addButton = function( definition ) {
         var $this = this;
-        return $this.data( 'markdownEditor' ).addButton( definition ); 
+        $this.data( 'markdownEditor' ).addButton( definition ); 
+        return this;
     };
     
     $.fn.markdownEditor.addComponent = function( $component ) {
@@ -180,7 +180,7 @@ if (typeof define === 'function' && define.amd) {
             _buttonClick: function( functionality ) {
                 var selection = this.getSelection(), newValue;
                 if( functionality ) {
-                    newValue = selection.selection;
+                    newValue = functionality( selection.selection );
                     this.insertValueAtCursor( newValue );
                 }
             },
@@ -492,14 +492,14 @@ if (typeof define === 'function' && define.amd) {
                 
                     currentValue = this.$textarea.val();
                     selection = this.getSelection();
-                    start = selection.start;
-                    end = selection.end;
+                    start = selection.start || 0;
+                    end = selection.end || 0;
                     newString = currentValue.substring( 0, start )
                         + value
                         + currentValue.substring( end, currentValue.length );
                     
                     this.$textarea.val( newString );
-                    cursorPosition = start + substring.length;
+                    cursorPosition = start + value.length;
                     this.$textarea.focus();
                     this.$textarea.each( function( index, textarea ) {
                         textarea.setSelectionRange( cursorPosition, cursorPosition ); 
